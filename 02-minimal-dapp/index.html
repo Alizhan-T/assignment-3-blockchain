@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minimal dApp</title>
+    <style>
+        :root{
+            --bg:#0b1020;
+            --card:#111a33;
+            --muted:#9aa7c7;
+            --text:#eaf0ff;
+            --line: rgba(255,255,255,.12);
+            --btn:#2b6cff;
+            --btn2:#2a375f;
+            --ok:#2ecc71;
+            --bad:#ff5b5b;
+            --warn:#f6c343;
+            --shadow: 0 14px 40px rgba(0,0,0,.45);
+            --radius: 16px;
+            --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+        }
+
+        *{ box-sizing:border-box; }
+        body{
+            margin:0;
+            font-family: var(--sans);
+            color: var(--text);
+            background:
+                    radial-gradient(900px 450px at 20% 10%, rgba(43,108,255,.25), transparent 60%),
+                    radial-gradient(700px 420px at 90% 30%, rgba(46,204,113,.18), transparent 55%),
+                    radial-gradient(800px 520px at 50% 100%, rgba(246,195,67,.12), transparent 60%),
+                    var(--bg);
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding: 28px 14px;
+        }
+
+        .wrap{
+            width: 100%;
+            max-width: 940px;
+            display:grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 860px){
+            .wrap{ grid-template-columns: 1fr; }
+        }
+
+        .card{
+            background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow:hidden;
+        }
+
+        .cardHeader{
+            padding: 18px 18px 14px;
+            border-bottom: 1px solid var(--line);
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            gap: 12px;
+        }
+
+        .title{
+            margin:0;
+            font-size: 20px;
+            letter-spacing: .2px;
+            line-height:1.2;
+        }
+
+        .subtitle{
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height:1.35;
+        }
+
+        .pill{
+            display:inline-flex;
+            align-items:center;
+            gap: 8px;
+            padding: 8px 10px;
+            border: 1px solid var(--line);
+            background: rgba(17,26,51,.35);
+            border-radius: 999px;
+            font-size: 12px;
+            color: var(--muted);
+            white-space:nowrap;
+        }
+
+        .dot{
+            width: 8px; height: 8px; border-radius:999px;
+            background: var(--warn);
+            box-shadow: 0 0 0 3px rgba(246,195,67,.12);
+        }
+        .dot.ok{ background: var(--ok); box-shadow: 0 0 0 3px rgba(46,204,113,.14); }
+        .dot.bad{ background: var(--bad); box-shadow: 0 0 0 3px rgba(255,91,91,.14); }
+
+        .cardBody{ padding: 18px; }
+
+        .grid{
+            display:grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 520px){
+            .grid{ grid-template-columns: 1fr; }
+        }
+
+        .field{
+            padding: 12px 12px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: rgba(17,26,51,.35);
+            min-height: 62px;
+        }
+        .label{
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 6px;
+            display:flex;
+            justify-content:space-between;
+            gap: 10px;
+            align-items:center;
+        }
+        .value{
+            font-family: var(--mono);
+            font-size: 13px;
+            word-break: break-all;
+            line-height:1.3;
+        }
+
+        .actions{
+            margin-top: 14px;
+            display:flex;
+            flex-wrap:wrap;
+            gap: 10px;
+        }
+        button{
+            border: none;
+            border-radius: 12px;
+            padding: 11px 14px;
+            font-weight: 600;
+            color: white;
+            cursor:pointer;
+            transition: transform .06s ease, opacity .2s ease, background .2s ease;
+            display:inline-flex;
+            align-items:center;
+            gap: 8px;
+            user-select:none;
+        }
+        button:active{ transform: translateY(1px); }
+        button:disabled{ opacity:.55; cursor:not-allowed; }
+        .btnPrimary{ background: var(--btn); }
+        .btnPrimary:hover{ background: #1f5cff; }
+        .btnSecondary{ background: var(--btn2); }
+        .btnSecondary:hover{ background: #334575; }
+        .btnGhost{
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--text);
+        }
+        .btnGhost:hover{ background: rgba(255,255,255,.05); }
+
+        .row{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed rgba(255,255,255,.14);
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .kbd{
+            font-family: var(--mono);
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,.04);
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .side{
+            padding: 18px;
+        }
+
+        .side h3{
+            margin: 0 0 10px;
+            font-size: 16px;
+        }
+        .side p{
+            margin: 0 0 12px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height:1.45;
+        }
+
+        .codeBox{
+            border: 1px solid var(--line);
+            background: rgba(17,26,51,.35);
+            border-radius: 12px;
+            padding: 12px;
+            font-family: var(--mono);
+            font-size: 12.5px;
+            line-height: 1.45;
+            color: #dbe6ff;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin: 10px 0 0;
+        }
+
+        .toast{
+            position: fixed;
+            left: 50%;
+            bottom: 16px;
+            transform: translateX(-50%);
+            background: rgba(17,26,51,.92);
+            border: 1px solid rgba(255,255,255,.16);
+            color: var(--text);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 13px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease, transform .2s ease;
+        }
+        .toast.show{
+            opacity: 1;
+            transform: translateX(-50%) translateY(-6px);
+        }
+    </style>
+</head>
+
+<body>
+<div class="wrap">
+    <!-- Main -->
+    <section class="card">
+        <div class="cardHeader">
+            <div>
+                <h1 class="title">Minimal dApp</h1>
+                <p class="subtitle">
+                    Connect MetaMask, check network, and read <span class="kbd">name()</span> from your deployed contract.
+                </p>
+            </div>
+            <div class="pill" id="statusPill">
+                <span class="dot" id="statusDot"></span>
+                <span id="status">Not connected</span>
+            </div>
+        </div>
+
+        <div class="cardBody">
+            <div class="grid">
+                <div class="field">
+                    <div class="label">
+                        <span>Account</span>
+                        <button class="btnGhost" id="copyAccountBtn" type="button" title="Copy account">Copy</button>
+                    </div>
+                    <div class="value" id="account">-</div>
+                </div>
+
+                <div class="field">
+                    <div class="label">
+                        <span>Chain ID</span>
+                        <span class="kbd">31337</span>
+                    </div>
+                    <div class="value" id="chainId">-</div>
+                </div>
+
+                <div class="field" style="grid-column: 1 / -1;">
+                    <div class="label">
+                        <span>Contract address</span>
+                        <button class="btnGhost" id="copyContractBtn" type="button" title="Copy contract address">Copy</button>
+                    </div>
+                    <div class="value" id="contractAddress">-</div>
+                </div>
+
+                <div class="field" style="grid-column: 1 / -1;">
+                    <div class="label">
+                        <span>Read result (contract.name())</span>
+                        <span class="kbd">view</span>
+                    </div>
+                    <div class="value" id="readResult">-</div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btnPrimary" id="connectBtn" type="button">🔌 Connect MetaMask</button>
+                <button class="btnSecondary" id="readBtn" type="button" disabled>📖 Read name()</button>
+                <button class="btnGhost" id="disconnectBtn" type="button">🧹 Reset UI</button>
+            </div>
+
+            <div class="row">
+                <span>Tip: if ChainId is not 31337, switch MetaMask network to <b>Hardhat Local</b>.</span>
+                <span class="kbd">localhost:3000</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Side -->
+    <aside class="card">
+        <div class="side">
+            <h3>What this dApp does</h3>
+            <p>
+                It uses an injected wallet provider (<span class="kbd">window.ethereum</span>) and ethers.js v6 to:
+                connect, show account + chainId, and call a read-only function on your contract.
+            </p>
+
+            <p><b>Expected output</b></p>
+            <div class="codeBox" id="expectedBox">Status: Read success
+                ChainId: 31337
+                Read result: MyToken</div>
+
+            <p style="margin-top:12px;"><b>Common fixes</b></p>
+            <div class="codeBox">• MetaMask not found → install MetaMask extension
+                • ChainId = 1 → switch to Hardhat Local (31337)
+                • Read failed → check contract address / network / ABI</div>
+        </div>
+    </aside>
+</div>
+
+<div class="toast" id="toast">Copied</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
